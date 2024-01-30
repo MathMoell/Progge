@@ -1,0 +1,152 @@
+
+
+"""
+#Harj (6)
+def paaris():
+    arv = int(input("sisesta arv: "))
+
+    if arv == 0:
+        print("Arv on 0")
+    elif arv % 2 == 0:
+        print("Arv on paaris")
+    else:
+        print("Arv on paaritu")
+"""
+
+"""
+#harj (8)
+import random
+punkt = 100
+
+while punkt > 0:
+    print(f"sinu raha: {punkt}")
+
+    pakkumine = int(input("paku summat (1-12): "))
+    kasutaja, arvuti = sum(random.randint(1, 6) for i in range(2)), sum(random.randint(1, 6) for i in range(2))
+
+    print(f"sinu punktid: {kasutaja}\narvuti punktid: {arvuti}")
+
+    vahe = pakkumine - kasutaja
+
+    if vahe < pakkumine - arvuti:
+        punkt += pakkumine
+        print("You won")
+    elif vahe > pakkumine - arvuti:
+        punkt -= pakkumine
+        print("arvuti Wins")
+    else:
+        print("Võrdne")
+
+print("Game Over")
+"""
+"""
+#Harj (10)
+tulemused = [float(input(f"sisesta {i+1} tulemus : ")) for i in range(3)]
+parim, keskmine = max(tulemused), sum(tulemused) / len(tulemused)
+
+print(f"\nparim tulemus: {parim} meetrit\nkeskmine tulemus: {keskmine:.2f} meetrit")
+"""
+# PYTHON KORDAMINE
+# Mathias Möll IT23
+# 16.01.2024
+#https://www.metshein.com/kordamine/Python_kodutood.txt
+"""
+#Harj (2)
+def vanus():
+    vanused = [9, 12, 15, 21, 45, 69, 72]
+
+    suurim = max(vanused)
+    v2ikseim = min(vanused)
+    kokku = sum(vanused)
+    keskmine = kokku / len(vanused)
+
+    print("Suurim vanus on", suurim)
+    print("V2ikseim vanus on", v2ikseim)
+    print("Kokku on", kokku)
+    print("Keskmine vanus on", keskmine)
+vanus()
+"""
+"""
+#harj (4)
+a = [1, 1, 4, 3, 5, 8, 2, 21, 34, 16, 89]
+
+for arv in a:
+    if arv < 5:
+        print(arv)
+"""
+
+"""
+#harj (12)
+def valuuta():
+    raha = int(input("sisesta raha: "))
+    valuuta = input("sisesta valuuta: ")
+
+    if valuuta == "EUR":
+        print(raha * 15)
+    elif valuuta == "EEK":
+        print(raha * 0.06)
+    else:
+        print("Vale valuuta")
+"""
+
+"""
+#Harj (14)
+def palk():
+    fail = open("palk.txt", encoding="UTF-8")
+    read = []
+    for rida in fail:
+        read.append(rida)
+    fail.close()
+
+    mehed = []
+    naised = []
+
+    for i in range(len(read)):
+        if read[i].split()[1] == "m":
+            mehed.append(int(read[i].split()[2]))
+        else:
+            naised.append(int(read[i].split()[2]))
+
+    meeste_keskmine = sum(mehed) / len(mehed)
+    naiste_keskmine = sum(naised) / len(naised)
+
+    meeste_max = max(mehed)
+    naiste_max = max(naised)
+
+    if meeste_keskmine > naiste_keskmine:
+        print("Meeste keskmine palk on suurem")
+    else:
+        print("Naiste keskmine palk on suurem")
+
+    if meeste_max > naiste_max:
+        print("Meeste maksimaalne palk on suurem")
+    else:
+        print("Naiste maksimaalne palk on suurem")
+        """
+"""
+#Harj (16)
+
+ 
+ def taringud():
+    import random
+    raha = 100
+    print("Tere tulemast t2ringum2ngu!")
+    nimi = input("Mis on sinu nimi? ")
+    print(f"Tere {nimi}! Sul on alguses {raha} eurot.")
+    while raha > 0:
+        print(f"Sinu raha: {raha}")
+        pakkumine = int(input("Paku summat (1-12): "))
+        kasutaja, arvuti = sum(random.randint(1, 6) for i in range(2)), sum(random.randint(1, 6) for i in range(2))
+        print(f"Sinu punktid: {kasutaja}\nArvuti punktid: {arvuti}")
+        vahe = pakkumine - kasutaja
+        if vahe < pakkumine - arvuti:
+            raha += pakkumine
+            print("You won")
+        elif vahe > pakkumine - arvuti:
+            raha -= pakkumine
+            print("Arvuti Wins")
+        else:
+            print("Võrdne")
+    print("Game Over")	
+    """
+#suurim abi oli github copilotist :)
