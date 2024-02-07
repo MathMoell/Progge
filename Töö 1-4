@@ -1,0 +1,220 @@
+#Mathias Möll
+#IT23
+"""
+#Tervitus
+print("Tere, maailm!")
+"""
+
+"""
+#Aasta liblikas
+aasta = 2020
+liblikas = "teelehe-mosaiikliblikas"
+lause_keskosa = ". aasta liblikas on "
+lause = str(aasta) + lause_keskosa + liblikas
+print(lause)
+"""
+
+"""
+#Pilved
+pilvede_alus = float(input("Sisesta pilvede aluse kõrgus kilomeetrites: "))
+if pilvede_alus > 6:
+    print("Need on ülemised pilved")
+else:
+    print("Need ei ole ülemised pilved")
+"""
+
+"""
+inimesed = int(input("Sisesta inimeste arv: "))
+kohad = int(input("Sisesta kohtade arv bussis: "))
+bussid = inimesed // kohad
+viimases = inimesed % kohad
+if viimases > 0:
+    bussid += 1
+print(f"Busside arv: {bussid}")
+print(f"Viimases bussis on {viimases} inimest")
+"""
+#Python too 2
+"""
+#2ratus
+ äratused = int(input("Mitu korda äratus heliseb? "))
+ for kord in range(äratused):
+     print("Tõuse ja sära!")
+"""
+
+"""
+#porgandid
+ringid = int(input("Sisesta ringide arv: "))
+porgandid = 0
+for ring in range(1, ringid+1):
+    if ring % 2 == 0:
+        porgandid += ring
+print("Saad " + str(porgandid) + " porgandit.")
+"""
+
+"""
+#täringud
+import random
+täringute_arv = int(input("Mitu täringut visata? "))
+for viske_nr in range(täringute_arv):
+    vise = random.randint(1, 6)
+    print(vise)
+"""
+
+"""
+#Male
+ruut = int(input("Sisesta ruudu number: "))
+rida = 1
+veerg = 1
+while rida < 9:
+    while veerg < 9:
+        if (rida + veerg) % 2 == 0:
+            print("#", end=" ")
+        else:
+            print(" ", end=" ")
+        veerg += 1
+    print()
+    rida += 1
+    veerg = 1
+"""
+
+"""
+#Õunad
+import random
+poisid = int(input("Mitu põialpoissi tahab õunu? "))
+õunad = 14
+while poisid > 0:
+    õunad -= random.randint(1, 2)
+    poisid -= 1
+    if õunad < 0:
+        õunad = 0
+print(õunad)
+"""
+#PYTONI TOO 3
+"""
+Koostada programm, mis
+loeb failist registreeritud vastuvõetute andmed aastate järgi järjendisse;
+Failist järjendisse saab lugeda järgmise programmijupi abil:
+failinimi = "vastuvõetud.txt"
+fail = open(failinimi, encoding="UTF-8")
+andmed = []
+for rida in fail:
+    andmed.append(int(rida))
+fail.close()
+arv = int(input("Sisesta aasta: "))
+arv = arv - 2011
+print(andmed[arv])
+"""
+
+"""
+#Porgandid ver.3
+ringid = int(input("Sisesta ringide arv: "))
+porgandid = 0
+for ring in range(1, ringid+1):
+    if ring % 2 == 0:
+        porgandid += ring
+print("Saad " + str(porgandid) + " porgandit.")
+"""
+
+"""
+#sisstetulekud
+failinimi = "konto.txt"
+fail = open(failinimi, encoding="UTF-8")
+andmed = []
+for rida in fail:
+    andmed.append(int(rida))
+fail.close()
+for arv in andmed:
+    if arv > 0:
+        print(arv)
+"""
+
+"""
+#Jukebox
+failinimi = input("Sisesta failinimi: ")
+fail = open(failinimi, encoding="UTF-8")
+andmed = []
+for rida in fail:
+    andmed.append(rida)
+fail.close()
+for i in range(len(andmed)):
+    print(str(i+1) + ". " + andmed[i], end="")
+valik = int(input("Vali laulu number: "))
+print(andmed[valik-1])
+"""
+
+"""
+#Tahvli juurde
+from datetime import *
+kuupäev = datetime.now().day
+failinimi = input("Sisesta failinimi: ")
+fail = open(failinimi, encoding="UTF-8")
+andmed = []
+for rida in fail:
+    andmed.append(rida)
+fail.close()
+print(andmed[kuupäev-1])
+"""
+#PYTHONI TOO 4
+"""
+#B2nner
+import random
+import datetime
+
+def banner(1):
+    print(1.upper())
+
+kordus = int(input("Mitu korda: "))
+tekst = input("lisa enda tekst: ")
+
+for i in range (kordus):
+    banner(tekst)
+banner()
+"""
+"""
+#6unamahl
+def mahlapakkide_arv(kg):
+    mahlapakkidearv = round(kg * 0.4 / 3)
+    return mahlapakkidearv
+ountekogus = float(input("sisesta õunte kogus: "))
+print(mahlapakkide_arv(ountekogus))
+"""
+"""
+#Peoeelarve
+def eelarve(arv):
+    kogusumma = arv * 10 + 55
+    return kogusumma
+
+kylaliste_arv = int(input("Mitu inimest on kutsutad: "))
+kylaliste_arv_tegelikult = int(input("Mitu inimest tuleb: "))
+print(f"Eelarve: {f"MAX eelarve(kylaliste_arv)}")
+print(f"Eelarve: {f"MAX eelarve(kylaliste_arv_tegeliult)}")
+"""
+"""
+#Tervitused
+def tervitus(jrk):
+    print("võõrustaja: "tere"")
+    print(f"Täna {jrk}. kord terivtada, mõtiskleb võõrustada")
+    print("külaline: "Tere, suur tänu kutse eest!"")
+
+kylaliste_arv = int(input("Mitu inimest on kutsutued: "))
+for i in range(kylaliste_arv)
+tervitus(i+1)
+"""
+#Myndid
+import random
+import datetime
+
+mynt = rand(1,2,5,10,20,50,100,200)
+print mynt(10)
+def mundid(pronks_summa,kuld_summa)
+int(intput("kontrolli münti: "))
+if mynt is 1, 2, 5 ("läheb hoiupõrsasse")
+    else ("ei l2he hoiupõrsasse") 
+
+
+
+
+
+
+
+
