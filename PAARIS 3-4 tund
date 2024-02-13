@@ -71,9 +71,6 @@ def valuuta():
     else:
         print("Vale valuuta")
 """
-#Palkade vĆµrdlus - Loo palk.txt fail tĆ¶Ć¶tajate nime, soo ja palganumbriga (10 tĆ¶Ć¶tajat).
-	#Koosta programm, mis analĆ¼Ć¼sib kas firmas toimub diskrimineerimist soo jĆ¤rgi. Selleks vĆµrdle omavahel meeste ja naiste palkade keskmiseid, samuti meeste ja naiste kĆµige kĆµrgemat palka. Programm peab tegema otsuse.
-
 	#Hubert Hunt m 2340
 	#Siim Siil m 2570
 	#MĆ¤rt MĆ¤ger m 1960
