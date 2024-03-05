@@ -1,13 +1,16 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import filedialog
 import csv
+import os
+import random
 
 class SalatoimikudRakendus:
     def __init__(self, master):
         self.master = master
-        self.master.title("TOP SECRET")
+        self.master.title("Kuritegude arhiiv")
         
-        # Isikute andmete list
         self.isikud = []
         
         self.label_nimi = tk.Label(master, text="Nimi:")
@@ -15,62 +18,75 @@ class SalatoimikudRakendus:
         self.entry_nimi = tk.Entry(master)
         self.entry_nimi.grid(row=0, column=1)
         
-        self.label_isikukood = tk.Label(master, text="ID:")
-        self.label_isikukood.grid(row=1, column=0, sticky="w")
-        self.entry_isikukood = tk.Entry(master)
-        self.entry_isikukood.grid(row=1, column=1)
-        
-        self.label_sunniaeg = tk.Label(master, text="Birth date:")
-        self.label_sunniaeg.grid(row=2, column=0, sticky="w")
+        self.label_sunniaeg = tk.Label(master, text="Sunnikuupaev:")
+        self.label_sunniaeg.grid(row=1, column=0, sticky="w")
         self.entry_sunniaeg = tk.Entry(master)
-        self.entry_sunniaeg.grid(row=2, column=1)
+        self.entry_sunniaeg.grid(row=1, column=1)
         
-        self.label_sugu = tk.Label(master, text="Sex:")
-        self.label_sugu.grid(row=3, column=0, sticky="w")
-        self.entry_sugu = tk.Entry(master)
-        self.entry_sugu.grid(row=3, column=1)
+        self.label_sugu = tk.Label(master, text="Sugu:")
+        self.label_sugu.grid(row=2, column=0, sticky="w")
+        self.sugu_var = tk.StringVar(master, None)
+        self.radio_mees = tk.Radiobutton(master, text="Mees", variable=self.sugu_var, value="Mees")
+        self.radio_mees.grid(row=2, column=1, sticky="w")
+        self.radio_naine = tk.Radiobutton(master, text="Naine", variable=self.sugu_var, value="Naine")
+        self.radio_naine.grid(row=2, column=1, sticky="e")
         
-        self.label_info = tk.Label(master, text="Extra:")
-        self.label_info.grid(row=4, column=0, sticky="w")
+        self.label_info = tk.Label(master, text="Lisainfo:")
+        self.label_info.grid(row=3, column=0, sticky="w")
         self.entry_info = tk.Entry(master)
-        self.entry_info.grid(row=4, column=1)
+        self.entry_info.grid(row=3, column=1)
         
         self.btn_lisa = tk.Button(master, text="Lisa Isik", command=self.lisa_isik)
-        self.btn_lisa.grid(row=5, column=0, columnspan=2, pady=10)
+        self.btn_lisa.grid(row=4, column=0, columnspan=2, pady=10)
+        
+        self.btn_kustuta = tk.Button(master, text="Kustuta", command=self.kustuta_isik)
+        self.btn_kustuta.grid(row=4, column=2, columnspan=2, pady=10)
         
         self.listbox = tk.Listbox(master, width=50)
-        self.listbox.grid(row=6, column=0, columnspan=2)
+        self.listbox.grid(row=5, column=0, columnspan=4)
         self.listbox.bind("<<ListboxSelect>>", self.vaata_andmeid)
         
+        self.pilt_btn = tk.Button(master, text="Lisa Pilt", command=self.lisa_pilt)
+        self.pilt_btn.grid(row=6, column=0, columnspan=2, pady=10)
         self.pilt_label = tk.Label(master)
-        self.pilt_label.grid(row=7, column=0, columnspan=2)
-    
+        self.pilt_label.grid(row=6, column=2, columnspan=2)
+
         self.load_data()
     
     def lisa_isik(self):
         nimi = self.entry_nimi.get()
-        isikukood = self.entry_isikukood.get()
         sunniaeg = self.entry_sunniaeg.get()
-        sugu = self.entry_sugu.get()
+        sugu = self.sugu_var.get()
         info = self.entry_info.get()
         
-        self.isikud.append([nimi, isikukood, sunniaeg, sugu, info])
-        
-        self.listbox.insert(tk.END, nimi)
-        
-        self.entry_nimi.delete(0, tk.END)
-        self.entry_isikukood.delete(0, tk.END)
-        self.entry_sunniaeg.delete(0, tk.END)
-        self.entry_sugu.delete(0, tk.END)
-        self.entry_info.delete(0, tk.END)
-        
-        self.save_data()
+        if nimi and sunniaeg and sugu: 
+            isikukood = self.genereeri_isikukood()
+            self.isikud.append([nimi, isikukood, sunniaeg, sugu, info])
+            self.listbox.insert(tk.END, nimi)
+            self.entry_nimi.delete(0, tk.END)
+            self.entry_sunniaeg.delete(0, tk.END)
+            self.sugu_var.set(None) 
+            self.entry_info.delete(0, tk.END)
+            self.save_data()
+        else:
+            messagebox.showwarning("Hoiatus", "Palun täitke kõik väljad.")
     
     def vaata_andmeid(self, event):
-        selected_index = self.listbox.curselection()[0]
-        selected_isik = self.isikud[selected_index]
-        
-        messagebox.showinfo("Isiku Andmed", f"Nimi: {selected_isik[0]}\nIsikukood: {selected_isik[1]}\nSünniaeg: {selected_isik[2]}\nSugu: {selected_isik[3]}\nInfo: {selected_isik[4]}")
+        selected_index = self.listbox.curselection()
+        if selected_index:
+            index = selected_index[0]
+            selected_isik = self.isikud[index]
+            messagebox.showinfo("Isiku Andmed", f"Nimi: {selected_isik[0]}\nIsikukood: {selected_isik[1]}\nSünniaeg: {selected_isik[2]}\nSugu: {selected_isik[3]}\nInfo: {selected_isik[4]}")
+    
+    def kustuta_isik(self):
+        selected_index = self.listbox.curselection()
+        if selected_index:
+            index = selected_index[0]
+            del self.isikud[index]
+            self.listbox.delete(index)
+            self.save_data()
+        else:
+            messagebox.showwarning("Hoiatus", "Palun valige isik, keda kustutada.")
     
     def load_data(self):
         try:
@@ -87,6 +103,23 @@ class SalatoimikudRakendus:
         with open("salatoimikud.csv", "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(self.isikud)
+    
+    def genereeri_isikukood(self):
+        isikukood = "5"  
+        for _ in range(10):  
+            isikukood += str(random.randint(0, 9))
+        return isikukood
+
+    def lisa_pilt(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+        if file_path:
+            # Display the selected image
+            try:
+                image = tk.PhotoImage(file=file_path)
+                self.pilt_label.config(image=image)
+                self.pilt_label.image = image
+            except tk.TclError:
+                messagebox.showwarning("Hoiatus", "Valitud fail ei ole pildifail või selle vormingut ei toetata.")
 
 root = tk.Tk()
 app = SalatoimikudRakendus(root)
