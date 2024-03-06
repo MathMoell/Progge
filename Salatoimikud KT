@@ -1,126 +1,187 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import simpledialog
-from tkinter import filedialog
+from tkinter import messagebox, filedialog
 import csv
-import os
-import random
+from PIL import Image, ImageTk
 
-class SalatoimikudRakendus:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Kuritegude arhiiv")
-        
-        self.isikud = []
-        
-        self.label_nimi = tk.Label(master, text="Nimi:")
-        self.label_nimi.grid(row=0, column=0, sticky="w")
-        self.entry_nimi = tk.Entry(master)
-        self.entry_nimi.grid(row=0, column=1)
-        
-        self.label_sunniaeg = tk.Label(master, text="Sunnikuupaev:")
-        self.label_sunniaeg.grid(row=1, column=0, sticky="w")
-        self.entry_sunniaeg = tk.Entry(master)
-        self.entry_sunniaeg.grid(row=1, column=1)
-        
-        self.label_sugu = tk.Label(master, text="Sugu:")
-        self.label_sugu.grid(row=2, column=0, sticky="w")
-        self.sugu_var = tk.StringVar(master, None)
-        self.radio_mees = tk.Radiobutton(master, text="Mees", variable=self.sugu_var, value="Mees")
-        self.radio_mees.grid(row=2, column=1, sticky="w")
-        self.radio_naine = tk.Radiobutton(master, text="Naine", variable=self.sugu_var, value="Naine")
-        self.radio_naine.grid(row=2, column=1, sticky="e")
-        
-        self.label_info = tk.Label(master, text="Lisainfo:")
-        self.label_info.grid(row=3, column=0, sticky="w")
-        self.entry_info = tk.Entry(master)
-        self.entry_info.grid(row=3, column=1)
-        
-        self.btn_lisa = tk.Button(master, text="Lisa Isik", command=self.lisa_isik)
-        self.btn_lisa.grid(row=4, column=0, columnspan=2, pady=10)
-        
-        self.btn_kustuta = tk.Button(master, text="Kustuta", command=self.kustuta_isik)
-        self.btn_kustuta.grid(row=4, column=2, columnspan=2, pady=10)
-        
-        self.listbox = tk.Listbox(master, width=50)
-        self.listbox.grid(row=5, column=0, columnspan=4)
-        self.listbox.bind("<<ListboxSelect>>", self.vaata_andmeid)
-        
-        self.pilt_btn = tk.Button(master, text="Lisa Pilt", command=self.lisa_pilt)
-        self.pilt_btn.grid(row=6, column=0, columnspan=2, pady=10)
-        self.pilt_label = tk.Label(master)
-        self.pilt_label.grid(row=6, column=2, columnspan=2)
+class Salatoimik:
+    def __init__(self, nimi, isikukood, synniaeg, sugu, info, pilt=None):
+        self.nimi = nimi
+        self.isikukood = isikukood
+        self.synniaeg = synniaeg
+        self.sugu = sugu
+        self.info = info
+        self.pilt = pilt
 
-        self.load_data()
-    
-    def lisa_isik(self):
-        nimi = self.entry_nimi.get()
-        sunniaeg = self.entry_sunniaeg.get()
-        sugu = self.sugu_var.get()
-        info = self.entry_info.get()
-        
-        if nimi and sunniaeg and sugu: 
-            isikukood = self.genereeri_isikukood()
-            self.isikud.append([nimi, isikukood, sunniaeg, sugu, info])
-            self.listbox.insert(tk.END, nimi)
-            self.entry_nimi.delete(0, tk.END)
-            self.entry_sunniaeg.delete(0, tk.END)
-            self.sugu_var.set(None) 
-            self.entry_info.delete(0, tk.END)
-            self.save_data()
+class SalatoimikuteHaldur:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Salatoimikute Haldamine")
+
+        self.andmebaas = []
+
+        self.loetelu = tk.Listbox(root, width=50)
+        self.loetelu.pack(pady=10)
+
+        self.loetelu.bind("<<ListboxSelect>>", self.loetelu_valitud)
+
+        raam = tk.Frame(root)
+        raam.pack(pady=20)
+
+        tk.Label(raam, text="Nimi:").grid(row=0, column=0, sticky="e")
+        tk.Label(raam, text="Sünniaeg:").grid(row=1, column=0, sticky="e")
+        tk.Label(raam, text="Sugu:").grid(row=2, column=0, sticky="e")
+        tk.Label(raam, text="Info:").grid(row=3, column=0, sticky="e")
+        tk.Label(raam, text="Pilt:").grid(row=4, column=0, sticky="e")
+
+        self.nimi_sisend = tk.Entry(raam)
+        self.nimi_sisend.grid(row=0, column=1)
+        self.synniaeg_sisend = tk.Entry(raam)
+        self.synniaeg_sisend.grid(row=1, column=1)
+        self.sugu_sisend = tk.Entry(raam)
+        self.sugu_sisend.grid(row=2, column=1)
+        self.info_sisend = tk.Text(raam, width=30, height=4)
+        self.info_sisend.grid(row=3, column=1)
+        self.pilt_sisend = tk.Text(raam, width=30, height=2)
+        self.pilt_sisend.grid(row=4, column=1)
+        self.lisa_pilt_nupp = tk.Button(raam, text="Lisa Pilt", command=self.lisa_pilt)
+        self.lisa_pilt_nupp.grid(row=4, column=2)
+
+        self.ava_pilt_nupp = tk.Button(raam, text="Ava Pilt", command=self.ava_pilt, state=tk.DISABLED)
+        self.ava_pilt_nupp.grid(row=4, column=3)
+
+        self.lisa_nupp = tk.Button(raam, text="Lisa", command=self.lisa_andmed)
+        self.lisa_nupp.grid(row=5, column=0, columnspan=2, pady=10)
+
+        self.muuda_nupp = tk.Button(raam, text="Muuda", command=self.muuda_andmed)
+        self.muuda_nupp.grid(row=6, column=0, pady=5)
+
+        self.kustuta_nupp = tk.Button(raam, text="Kustuta", command=self.kustuta_andmed)
+        self.kustuta_nupp.grid(row=6, column=1, pady=5)
+
+        self.muuda_rezhiim = False
+
+        self.loe_andmed()
+
+    def lisa_andmed(self):
+        nimi = self.nimi_sisend.get()
+        synniaeg = self.synniaeg_sisend.get()
+        sugu = self.sugu_sisend.get()
+        info = self.info_sisend.get(1.0, tk.END)
+        pilt = self.pilt_sisend.get(1.0, tk.END)
+
+        if nimi and synniaeg and sugu and info:
+            self.andmebaas.append(Salatoimik(nimi, "", synniaeg, sugu, info, pilt))
+            self.nimi_sisend.delete(0, tk.END)
+            self.synniaeg_sisend.delete(0, tk.END)
+            self.sugu_sisend.delete(0, tk.END)
+            self.info_sisend.delete(1.0, tk.END)
+            self.pilt_sisend.delete(1.0, tk.END)
+
+            self.salvesta_andmed()
+            self.uuenda_loetelu()
         else:
-            messagebox.showwarning("Hoiatus", "Palun täitke kõik väljad.")
-    
-    def vaata_andmeid(self, event):
-        selected_index = self.listbox.curselection()
-        if selected_index:
-            index = selected_index[0]
-            selected_isik = self.isikud[index]
-            messagebox.showinfo("Isiku Andmed", f"Nimi: {selected_isik[0]}\nIsikukood: {selected_isik[1]}\nSünniaeg: {selected_isik[2]}\nSugu: {selected_isik[3]}\nInfo: {selected_isik[4]}")
-    
-    def kustuta_isik(self):
-        selected_index = self.listbox.curselection()
-        if selected_index:
-            index = selected_index[0]
-            del self.isikud[index]
-            self.listbox.delete(index)
-            self.save_data()
-        else:
-            messagebox.showwarning("Hoiatus", "Palun valige isik, keda kustutada.")
-    
-    def load_data(self):
-        try:
-            with open("salatoimikud.csv", "r", newline="") as file:
-                reader = csv.reader(file)
-                self.isikud = list(reader)
-                
-                for isik in self.isikud:
-                    self.listbox.insert(tk.END, isik[0])
-        except FileNotFoundError:
-            messagebox.showwarning("Hoiatus", "Andmefaili ei leitud.")
-    
-    def save_data(self):
-        with open("salatoimikud.csv", "w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerows(self.isikud)
-    
-    def genereeri_isikukood(self):
-        isikukood = "5"  
-        for _ in range(10):  
-            isikukood += str(random.randint(0, 9))
-        return isikukood
+            messagebox.showwarning("Tähelepanu!", "Palun täida kõik väljad!")
+
+    def muuda_andmed(self):
+        valitud_indeks = self.loetelu.curselection()
+        if valitud_indeks:
+            valitud_indeks = valitud_indeks[0]
+            nimi = self.nimi_sisend.get()
+            synniaeg = self.synniaeg_sisend.get()
+            sugu = self.sugu_sisend.get()
+            info = self.info_sisend.get(1.0, tk.END)
+            pilt = self.pilt_sisend.get(1.0, tk.END)
+
+            if nimi and synniaeg and sugu and info:
+                self.andmebaas[valitud_indeks] = Salatoimik(nimi, "", synniaeg, sugu, info, pilt)
+                self.nimi_sisend.delete(0, tk.END)
+                self.synniaeg_sisend.delete(0, tk.END)
+                self.sugu_sisend.delete(0, tk.END)
+                self.info_sisend.delete(1.0, tk.END)
+                self.pilt_sisend.delete(1.0, tk.END)
+
+                self.muuda_rezhiim = False
+                self.muuda_nupp.config(text="Muuda")
+                self.salvesta_andmed()
+                self.uuenda_loetelu()
+            else:
+                messagebox.showwarning("Tähelepanu!", "Palun täida kõik väljad!")
+
+    def kustuta_andmed(self):
+        valitud_indeks = self.loetelu.curselection()
+        if valitud_indeks:
+            valitud_indeks = valitud_indeks[0]
+            del self.andmebaas[valitud_indeks]
+            self.uuenda_loetelu()
+            self.salvesta_andmed()
 
     def lisa_pilt(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-        if file_path:
-            # Display the selected image
-            try:
-                image = tk.PhotoImage(file=file_path)
-                self.pilt_label.config(image=image)
-                self.pilt_label.image = image
-            except tk.TclError:
-                messagebox.showwarning("Hoiatus", "Valitud fail ei ole pildifail või selle vormingut ei toetata.")
+        valitud_indeks = self.loetelu.curselection()
+        if valitud_indeks:
+            valitud_indeks = valitud_indeks[0]
+            piltitee = filedialog.askopenfilename()
+            self.andmebaas[valitud_indeks].pilt = piltitee
+            self.pilt_sisend.delete(1.0, tk.END)
+            self.pilt_sisend.insert(tk.END, piltitee)
+            self.ava_pilt_nupp.config(state=tk.NORMAL)
 
-root = tk.Tk()
-app = SalatoimikudRakendus(root)
-root.mainloop()
+    def ava_pilt(self):
+        valitud_indeks = self.loetelu.curselection()
+        if valitud_indeks:
+            valitud_indeks = valitud_indeks[0]
+            piltitee = self.andmebaas[valitud_indeks].pilt
+            if piltitee:
+                piltaken = tk.Toplevel()
+                piltaken.title("Isiku Pilt")
+                piltaken.geometry("300x300")
+
+                pilt = Image.open(piltitee)
+                pilt = pilt.resize((250, 250))
+                pilt = ImageTk.PhotoImage(pilt)
+                label = tk.Label(piltaken, image=pilt)
+                label.image = pilt
+                label.pack()
+
+    def loetelu_valitud(self, event):
+        valitud_indeks = self.loetelu.curselection()
+        if valitud_indeks:
+            valitud_indeks = valitud_indeks[0]
+            valitud_salatoimik = self.andmebaas[valitud_indeks]
+            self.nimi_sisend.delete(0, tk.END)
+            self.nimi_sisend.insert(tk.END, valitud_salatoimik.nimi)
+            self.synniaeg_sisend.delete(0, tk.END)
+            self.synniaeg_sisend.insert(tk.END, valitud_salatoimik.synniaeg)
+            self.sugu_sisend.delete(0, tk.END)
+            self.sugu_sisend.insert(tk.END, valitud_salatoimik.sugu)
+            self.info_sisend.delete(1.0, tk.END)
+            self.info_sisend.insert(tk.END, valitud_salatoimik.info)
+            self.pilt_sisend.delete(1.0, tk.END)
+            self.pilt_sisend.insert(tk.END, valitud_salatoimik.pilt)
+            self.muuda_nupp.config(state=tk.NORMAL)
+            self.ava_pilt_nupp.config(state=tk.NORMAL)
+
+    def uuenda_loetelu(self):
+        self.loetelu.delete(0, tk.END)
+        for salatoimik in self.andmebaas:
+            self.loetelu.insert(tk.END, salatoimik.nimi)
+
+    def loe_andmed(self):
+        try:
+            with open("salatoimikud.csv", "r", newline="") as fail:
+                lugeja = csv.reader(fail)
+                for rida in lugeja:
+                    self.andmebaas.append(Salatoimik(*rida))
+            self.uuenda_loetelu()
+        except FileNotFoundError:
+            messagebox.showerror("Viga", "Andmefaili ei leitud!")
+
+    def salvesta_andmed(self):
+        with open("salatoimikud.csv", "w", newline="") as fail:
+            kirjutaja = csv.writer(fail)
+            for salatoimik in self.andmebaas:
+                kirjutaja.writerow([salatoimik.nimi, salatoimik.isikukood, salatoimik.synniaeg, salatoimik.sugu, salatoimik.info, salatoimik.pilt])
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SalatoimikuteHaldur(root)
+    root.mainloop()
