@@ -15,7 +15,7 @@ class Salatoimik:
 class SalatoimikuteHaldur:
     def __init__(self, root):
         self.root = root
-        self.root.title("Salatoimikute Haldamine")
+        self.root.title("TOPP SIKRET - Salatoimikute Haldamine")
 
         self.andmebaas = []
 
@@ -37,8 +37,12 @@ class SalatoimikuteHaldur:
         self.nimi_sisend.grid(row=0, column=1)
         self.synniaeg_sisend = tk.Entry(raam)
         self.synniaeg_sisend.grid(row=1, column=1)
-        self.sugu_sisend = tk.Entry(raam)
-        self.sugu_sisend.grid(row=2, column=1)
+
+        # Raadionupud sugu valimiseks
+        self.sugu_var = tk.StringVar(value="Mees")
+        tk.Radiobutton(raam, text="Mees", variable=self.sugu_var, value="Mees").grid(row=2, column=1, sticky="w")
+        tk.Radiobutton(raam, text="Naine", variable=self.sugu_var, value="Naine").grid(row=2, column=1, sticky="e")
+
         self.info_sisend = tk.Text(raam, width=30, height=4)
         self.info_sisend.grid(row=3, column=1)
         self.pilt_sisend = tk.Text(raam, width=30, height=2)
@@ -65,15 +69,14 @@ class SalatoimikuteHaldur:
     def lisa_andmed(self):
         nimi = self.nimi_sisend.get()
         synniaeg = self.synniaeg_sisend.get()
-        sugu = self.sugu_sisend.get()
+        sugu = self.sugu_var.get()
         info = self.info_sisend.get(1.0, tk.END)
         pilt = self.pilt_sisend.get(1.0, tk.END)
 
-        if nimi and synniaeg and sugu and info:
+        if nimi and synniaeg and info:
             self.andmebaas.append(Salatoimik(nimi, "", synniaeg, sugu, info, pilt))
             self.nimi_sisend.delete(0, tk.END)
             self.synniaeg_sisend.delete(0, tk.END)
-            self.sugu_sisend.delete(0, tk.END)
             self.info_sisend.delete(1.0, tk.END)
             self.pilt_sisend.delete(1.0, tk.END)
 
@@ -88,15 +91,15 @@ class SalatoimikuteHaldur:
             valitud_indeks = valitud_indeks[0]
             nimi = self.nimi_sisend.get()
             synniaeg = self.synniaeg_sisend.get()
-            sugu = self.sugu_sisend.get()
+            sugu
+            sugu = self.sugu_var.get()
             info = self.info_sisend.get(1.0, tk.END)
             pilt = self.pilt_sisend.get(1.0, tk.END)
 
-            if nimi and synniaeg and sugu and info:
+            if nimi and synniaeg and info:
                 self.andmebaas[valitud_indeks] = Salatoimik(nimi, "", synniaeg, sugu, info, pilt)
                 self.nimi_sisend.delete(0, tk.END)
                 self.synniaeg_sisend.delete(0, tk.END)
-                self.sugu_sisend.delete(0, tk.END)
                 self.info_sisend.delete(1.0, tk.END)
                 self.pilt_sisend.delete(1.0, tk.END)
 
@@ -151,8 +154,7 @@ class SalatoimikuteHaldur:
             self.nimi_sisend.insert(tk.END, valitud_salatoimik.nimi)
             self.synniaeg_sisend.delete(0, tk.END)
             self.synniaeg_sisend.insert(tk.END, valitud_salatoimik.synniaeg)
-            self.sugu_sisend.delete(0, tk.END)
-            self.sugu_sisend.insert(tk.END, valitud_salatoimik.sugu)
+            self.sugu_var.set(valitud_salatoimik.sugu)  # Seadistab valitud sugu raadionuppudele
             self.info_sisend.delete(1.0, tk.END)
             self.info_sisend.insert(tk.END, valitud_salatoimik.info)
             self.pilt_sisend.delete(1.0, tk.END)
