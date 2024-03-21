@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import csv
 from PIL import Image, ImageTk
+import os
 
 class Salatoimik:
     def __init__(self, nimi, isikukood, synniaeg, sugu, info, pilt=None):
@@ -15,7 +16,7 @@ class Salatoimik:
 class SalatoimikuteHaldur:
     def __init__(self, root):
         self.root = root
-        self.root.title("TOPP SIKRET - Salatoimikute Haldamine")
+        self.root.title("Salatoimikute Haldamine")
 
         self.andmebaas = []
 
@@ -37,15 +38,12 @@ class SalatoimikuteHaldur:
         self.nimi_sisend.grid(row=0, column=1)
         self.synniaeg_sisend = tk.Entry(raam)
         self.synniaeg_sisend.grid(row=1, column=1)
-
-        # Raadionupud sugu valimiseks
-        self.sugu_var = tk.StringVar(value="Mees")
-        tk.Radiobutton(raam, text="Mees", variable=self.sugu_var, value="Mees").grid(row=2, column=1, sticky="w")
-        tk.Radiobutton(raam, text="Naine", variable=self.sugu_var, value="Naine").grid(row=2, column=1, sticky="e")
-
+        self.sugu_sisend = tk.StringVar()
+        tk.Radiobutton(raam, text="Mees", variable=self.sugu_sisend, value="Mees").grid(row=2, column=1)
+        tk.Radiobutton(raam, text="Naine", variable=self.sugu_sisend, value="Naine").grid(row=2, column=2)
         self.info_sisend = tk.Text(raam, width=30, height=4)
         self.info_sisend.grid(row=3, column=1)
-        self.pilt_sisend = tk.Text(raam, width=30, height=2)
+        self.pilt_sisend = tk.Entry(raam)
         self.pilt_sisend.grid(row=4, column=1)
         self.lisa_pilt_nupp = tk.Button(raam, text="Lisa Pilt", command=self.lisa_pilt)
         self.lisa_pilt_nupp.grid(row=4, column=2)
@@ -69,16 +67,17 @@ class SalatoimikuteHaldur:
     def lisa_andmed(self):
         nimi = self.nimi_sisend.get()
         synniaeg = self.synniaeg_sisend.get()
-        sugu = self.sugu_var.get()
+        sugu = self.sugu_sisend.get()
         info = self.info_sisend.get(1.0, tk.END)
-        pilt = self.pilt_sisend.get(1.0, tk.END)
+        pilt = self.pilt_sisend.get()
 
-        if nimi and synniaeg and info:
+        if nimi and synniaeg and sugu and info:
             self.andmebaas.append(Salatoimik(nimi, "", synniaeg, sugu, info, pilt))
             self.nimi_sisend.delete(0, tk.END)
             self.synniaeg_sisend.delete(0, tk.END)
+            self.sugu_sisend.set("")
             self.info_sisend.delete(1.0, tk.END)
-            self.pilt_sisend.delete(1.0, tk.END)
+            self.pilt_sisend.delete(0, tk.END)
 
             self.salvesta_andmed()
             self.uuenda_loetelu()
@@ -91,17 +90,17 @@ class SalatoimikuteHaldur:
             valitud_indeks = valitud_indeks[0]
             nimi = self.nimi_sisend.get()
             synniaeg = self.synniaeg_sisend.get()
-            sugu
-            sugu = self.sugu_var.get()
+            sugu = self.sugu_sisend.get()
             info = self.info_sisend.get(1.0, tk.END)
-            pilt = self.pilt_sisend.get(1.0, tk.END)
+            pilt = self.pilt_sisend.get()
 
-            if nimi and synniaeg and info:
+            if nimi and synniaeg and sugu and info:
                 self.andmebaas[valitud_indeks] = Salatoimik(nimi, "", synniaeg, sugu, info, pilt)
                 self.nimi_sisend.delete(0, tk.END)
                 self.synniaeg_sisend.delete(0, tk.END)
+                self.sugu_sisend.set("")
                 self.info_sisend.delete(1.0, tk.END)
-                self.pilt_sisend.delete(1.0, tk.END)
+                self.pilt_sisend.delete(0, tk.END)
 
                 self.muuda_rezhiim = False
                 self.muuda_nupp.config(text="Muuda")
@@ -117,33 +116,36 @@ class SalatoimikuteHaldur:
             del self.andmebaas[valitud_indeks]
             self.uuenda_loetelu()
             self.salvesta_andmed()
+        else:
+            messagebox.showwarning("Tähelepanu!", "Palun valige kustutatav kirje!")
 
     def lisa_pilt(self):
-        valitud_indeks = self.loetelu.curselection()
-        if valitud_indeks:
-            valitud_indeks = valitud_indeks[0]
-            piltitee = filedialog.askopenfilename()
-            self.andmebaas[valitud_indeks].pilt = piltitee
-            self.pilt_sisend.delete(1.0, tk.END)
-            self.pilt_sisend.insert(tk.END, piltitee)
-            self.ava_pilt_nupp.config(state=tk.NORMAL)
+        piltitee = filedialog.askopenfilename()
+        self.pilt_sisend.delete(0, tk.END)
+        self.pilt_sisend.insert(tk.END, piltitee)
 
     def ava_pilt(self):
         valitud_indeks = self.loetelu.curselection()
         if valitud_indeks:
+            valitud_indeks
             valitud_indeks = valitud_indeks[0]
             piltitee = self.andmebaas[valitud_indeks].pilt
             if piltitee:
-                piltaken = tk.Toplevel()
-                piltaken.title("Isiku Pilt")
-                piltaken.geometry("300x300")
+                if os.path.exists(piltitee):
+                    piltaken = tk.Toplevel()
+                    piltaken.title("Isiku Pilt")
+                    piltaken.geometry("300x300")
 
-                pilt = Image.open(piltitee)
-                pilt = pilt.resize((250, 250))
-                pilt = ImageTk.PhotoImage(pilt)
-                label = tk.Label(piltaken, image=pilt)
-                label.image = pilt
-                label.pack()
+                    pilt = Image.open(piltitee)
+                    pilt = pilt.resize((250, 250))
+                    pilt = ImageTk.PhotoImage(pilt)
+                    label = tk.Label(piltaken, image=pilt)
+                    label.image = pilt
+                    label.pack()
+                else:
+                    messagebox.showerror("Viga", "Pilti ei leitud!")
+            else:
+                messagebox.showerror("Viga", "Pilti ei leitud!")
 
     def loetelu_valitud(self, event):
         valitud_indeks = self.loetelu.curselection()
@@ -154,10 +156,10 @@ class SalatoimikuteHaldur:
             self.nimi_sisend.insert(tk.END, valitud_salatoimik.nimi)
             self.synniaeg_sisend.delete(0, tk.END)
             self.synniaeg_sisend.insert(tk.END, valitud_salatoimik.synniaeg)
-            self.sugu_var.set(valitud_salatoimik.sugu)  # Seadistab valitud sugu raadionuppudele
+            self.sugu_sisend.set(valitud_salatoimik.sugu)
             self.info_sisend.delete(1.0, tk.END)
             self.info_sisend.insert(tk.END, valitud_salatoimik.info)
-            self.pilt_sisend.delete(1.0, tk.END)
+            self.pilt_sisend.delete(0, tk.END)
             self.pilt_sisend.insert(tk.END, valitud_salatoimik.pilt)
             self.muuda_nupp.config(state=tk.NORMAL)
             self.ava_pilt_nupp.config(state=tk.NORMAL)
